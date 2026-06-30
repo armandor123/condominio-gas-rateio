@@ -26,10 +26,16 @@ public class TorreRepositoryJpaAdapter implements TorreRepository {
 
     @Override
     public List<Torre> listarTodas() {
-        return springDataTorreRepository.findAll()
+        return springDataTorreRepository.findAllByOrderByNomeAsc()
                 .stream()
                 .map(TorreMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<Torre> buscarPorId(Long id) {
+        return springDataTorreRepository.findById(id)
+                .map(TorreMapper::toDomain);
     }
 
     @Override

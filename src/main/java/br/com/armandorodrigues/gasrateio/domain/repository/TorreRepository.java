@@ -11,5 +11,7 @@ public interface TorreRepository {
 
     List<Torre> listarTodas();
 
+    Optional<Torre> buscarPorId(Long id);
+
     Optional<Torre> buscarPorNome(String nome);
 }

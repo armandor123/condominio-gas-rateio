@@ -1,10 +1,10 @@
 package br.com.armandorodrigues.gasrateio.application.usecase;
 
+import br.com.armandorodrigues.gasrateio.domain.repository.TorreRepository;
 import br.com.armandorodrigues.gasrateio.application.dto.TorreRequest;
 import br.com.armandorodrigues.gasrateio.application.dto.TorreResponse;
 import br.com.armandorodrigues.gasrateio.domain.exception.RegraNegocioException;
 import br.com.armandorodrigues.gasrateio.domain.model.Torre;
-import br.com.armandorodrigues.gasrateio.domain.repository.TorreRepository;
 import org.springframework.stereotype.Service;
 
 @Service
