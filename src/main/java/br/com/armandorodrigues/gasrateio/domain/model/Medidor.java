@@ -31,6 +31,22 @@ public class Medidor {
         this.torreId = torreId;
         this.ativo = ativo;
     }
+    public static Medidor novo(
+            String nome,
+            String codigo,
+            TipoMedidor tipo,
+            Long torreId
+    ) {
+        return new Medidor(
+                null,
+                nome,
+                codigo,
+                tipo,
+                torreId,
+                true
+        );
+    }
+
 
     public static Medidor novoPrincipal(String nome, String codigo) {
         return new Medidor(
