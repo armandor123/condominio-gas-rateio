@@ -1,3 +1,5 @@
+![Java CI](https://github.com/armandor123/condominio-gas-rateio/actions/workflows/ci.yml/badge.svg)
+
 # Sistema de Rateio de Gás Condominial
 
 API desenvolvida em Java com Spring Boot para calcular o rateio mensal da conta de gás entre torres de um condomínio.
