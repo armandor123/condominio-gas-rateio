@@ -333,6 +333,50 @@ Criar exportação em Excel.
 Criar front-end em React com TypeScript.
 Adicionar autenticação e controle de usuários.
 Criar dashboard com histórico mensal de consumo e valores.
+
+## Testes automatizados
+
+O projeto possui testes automatizados cobrindo regras de negócio, casos de uso e controllers da API.
+
+Foram implementados testes para:
+
+- Entidades de domínio:
+  - Torre
+  - Medidor
+  - Leitura
+  - ContaMensal
+
+- Serviços de domínio:
+  - CalculadoraRateio
+
+- Casos de uso:
+  - Cadastro de torres
+  - Cadastro de medidores
+  - Registro de leituras
+  - Registro de contas mensais
+  - Cálculo de rateio
+  - Busca de rateio por mês
+  - Listagem de torres
+  - Listagem de medidores
+  - Listagem de leituras
+  - Listagem de contas mensais
+  - Listagem de rateios
+
+- Controllers:
+  - TorreController
+  - MedidorController
+  - LeituraController
+  - ContaMensalController
+  - RateioController
+
+- Tratamento de erros:
+  - GlobalExceptionHandler
+
+Para rodar os testes:
+
+```bash
+./mvnw test
+
 Autor
 
 Desenvolvido por Armando Rodrigues.
