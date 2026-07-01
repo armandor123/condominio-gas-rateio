@@ -1,0 +1,148 @@
+@baseUrl = http://localhost:8080
+
+### Health check simples
+GET {{baseUrl}}/torres
+
+
+### Listar torres
+GET {{baseUrl}}/torres
+
+
+### Cadastrar Torre Prime
+POST {{baseUrl}}/torres
+Content-Type: application/json
+
+{
+  "nome": "Prime"
+}
+
+
+### Cadastrar Torre Hype
+POST {{baseUrl}}/torres
+Content-Type: application/json
+
+{
+  "nome": "Hype"
+}
+
+
+### Listar medidores
+GET {{baseUrl}}/medidores
+
+
+### Cadastrar medidor principal
+POST {{baseUrl}}/medidores
+Content-Type: application/json
+
+{
+  "nome": "Medidor Principal",
+  "codigo": "GAS-PRINCIPAL-001",
+  "tipo": "PRINCIPAL",
+  "torreId": null
+}
+
+
+### Cadastrar medidor da Torre Prime
+POST {{baseUrl}}/medidores
+Content-Type: application/json
+
+{
+  "nome": "Medidor Torre Prime",
+  "codigo": "GAS-PRIME-001",
+  "tipo": "SECUNDARIO",
+  "torreId": 2
+}
+
+
+### Cadastrar medidor da Torre Hype
+POST {{baseUrl}}/medidores
+Content-Type: application/json
+
+{
+  "nome": "Medidor Torre Hype",
+  "codigo": "GAS-HYPE-001",
+  "tipo": "SECUNDARIO",
+  "torreId": 1
+}
+
+
+### Listar leituras
+GET {{baseUrl}}/leituras
+
+
+### Registrar leitura do medidor principal
+POST {{baseUrl}}/leituras
+Content-Type: application/json
+
+{
+  "medidorId": 1,
+  "mesReferencia": "2026-06",
+  "dataLeitura": "2026-06-30",
+  "leituraAnterior": 10000.00,
+  "leituraAtual": 11200.00
+}
+
+
+### Registrar leitura da Torre Prime
+POST {{baseUrl}}/leituras
+Content-Type: application/json
+
+{
+  "medidorId": 2,
+  "mesReferencia": "2026-06",
+  "dataLeitura": "2026-06-30",
+  "leituraAnterior": 5000.00,
+  "leituraAtual": 5600.00
+}
+
+
+### Registrar leitura da Torre Hype
+POST {{baseUrl}}/leituras
+Content-Type: application/json
+
+{
+  "medidorId": 3,
+  "mesReferencia": "2026-06",
+  "dataLeitura": "2026-06-30",
+  "leituraAnterior": 4000.00,
+  "leituraAtual": 4400.00
+}
+
+
+### Listar contas mensais
+GET {{baseUrl}}/contas-mensais
+
+
+### Cadastrar conta mensal
+POST {{baseUrl}}/contas-mensais
+Content-Type: application/json
+
+{
+  "mesReferencia": "2026-06",
+  "valorTotal": 10000.00,
+  "consumoInformado": 1200.00,
+  "dataVencimento": "2026-07-10",
+  "numeroFatura": "FAT-2026-06",
+  "observacoes": "Conta referente ao consumo de junho."
+}
+
+
+### Calcular rateio
+POST {{baseUrl}}/rateios/calcular
+Content-Type: application/json
+
+{
+  "mesReferencia": "2026-06"
+}
+
+
+### Listar rateios
+GET {{baseUrl}}/rateios
+
+
+### Buscar rateio por mês
+GET {{baseUrl}}/rateios/2026-06
+
+
+### Swagger UI
+GET {{baseUrl}}/v3/api-docs
