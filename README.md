@@ -2,272 +2,493 @@
 
 # Sistema de Rateio de Gás Condominial
 
-API desenvolvida em Java com Spring Boot para calcular o rateio mensal da conta de gás entre torres de um condomínio.
+API REST desenvolvida em Java com Spring Boot para calcular o rateio de consumo de gás entre torres de um condomínio.
+
+O projeto simula um cenário real de gestão condominial, onde existe um medidor principal de gás que registra o consumo total da concessionária e dois medidores secundários responsáveis por separar o consumo das torres Prime e Hype.
+
+---
 
 ## Sobre o projeto
 
-Este projeto nasceu a partir de uma necessidade real de gestão condominial.
+Em alguns condomínios, a conta de gás chega com base em um único medidor principal. Porém, internamente, existem medidores secundários instalados para identificar quanto cada torre consumiu.
 
-O condomínio possui um medidor principal de gás, responsável por registrar o consumo total de duas torres. Após esse medidor principal, existem dois medidores secundários, um para cada torre:
+Este sistema resolve esse problema calculando automaticamente quanto cada torre deve pagar de acordo com o consumo proporcional registrado nos medidores secundários.
 
-- Torre Prime
-- Torre Hype
+### Cenário utilizado
 
-A conta da concessionária é gerada com base no medidor principal, porém a divisão interna precisa ser feita proporcionalmente ao consumo registrado nos medidores secundários.
+O condomínio possui:
 
-O sistema automatiza esse processo, reduzindo cálculos manuais e aumentando a rastreabilidade do rateio mensal.
+- 1 medidor principal da concessionária
+- 1 medidor secundário para a Torre Prime
+- 1 medidor secundário para a Torre Hype
+- 1 conta mensal com o valor total a ser rateado
+
+A API permite cadastrar torres, medidores, leituras mensais, contas mensais e calcular o rateio proporcional.
 
 ---
 
 ## Problema resolvido
 
-# Sistema de Rateio de Gás Condominial
+A concessionária envia uma conta com base no consumo do medidor principal.
 
-API desenvolvida em Java com Spring Boot para calcular o rateio mensal da conta de gás entre torres de um condomínio.
-
-## Sobre o projeto
-
-Este projeto nasceu a partir de uma necessidade real de gestão condominial.
-
-O condomínio possui um medidor principal de gás, responsável por registrar o consumo total de duas torres. Após esse medidor principal, existem dois medidores secundários, um para cada torre:
-
-- Torre Prime
-- Torre Hype
-
-A conta da concessionária é gerada com base no medidor principal, porém a divisão interna precisa ser feita proporcionalmente ao consumo registrado nos medidores secundários.
-
-O sistema automatiza esse processo, reduzindo cálculos manuais e aumentando a rastreabilidade do rateio mensal.
-
----
-
-## Problema resolvido
-
-Antes do sistema, o cálculo precisava ser feito manualmente:
-
-1. Verificar a conta mensal da concessionária.
-2. Consultar o consumo do medidor principal.
-3. Consultar o consumo dos medidores das torres.
-4. Calcular a participação percentual de cada torre.
-5. Aplicar esse percentual sobre o valor total da conta.
-6. Conferir diferenças entre o consumo principal e a soma dos secundários.
-
-Com a API, esse processo passa a ser automatizado.
-
----
-
-## Exemplo de cálculo
-
-Conta mensal de gás:
+Exemplo:
 
 ```text
 Valor total da conta: R$ 10.000,00
 Consumo do medidor principal: 1200 m³
-Torre Prime: 600 m³
-Torre Hype: 400 m³
-Total secundário: 1000 m³
 
-Cálculo proporcional
+Consumo Torre Prime: 600 m³
+Consumo Torre Hype: 400 m³
+```
+
+O sistema soma os consumos secundários:
+
+```text
+600 + 400 = 1000 m³
+```
+
+Calcula o percentual de cada torre:
+
+```text
 Prime = 600 / 1000 = 60%
-Hype = 400 / 1000 = 40%
+Hype  = 400 / 1000 = 40%
+```
 
-Resultado do rateio
-Prime = R$ 6.000,00
-Hype = R$ 4.000,00
+E divide o valor da conta:
 
-O sistema também registra a diferença entre o consumo do medidor principal e a soma dos medidores secundários: 1200 - 1000 = 200 m³
+```text
+Prime = R$ 10.000,00 * 60% = R$ 6.000,00
+Hype  = R$ 10.000,00 * 40% = R$ 4.000,00
+```
 
-Essa diferença pode indicar perda técnica, divergência de leitura, vazamento, erro de medição ou defasagem entre datas de leitura.
+Também registra a diferença entre o medidor principal e os medidores secundários:
 
+```text
+1200 - 1000 = 200 m³
+```
 
-Funcionalidades
-Cadastro de torres
-Cadastro de medidores
-Classificação de medidor principal e secundário
-Registro de leituras mensais
-Cálculo automático do consumo mensal
-Cadastro da conta mensal da concessionária
-Cálculo proporcional do rateio entre torres
-Consulta de rateios calculados
-Consulta de rateio por mês
-Persistência em PostgreSQL via Docker
-Documentação da API com Swagger/OpenAPI
+---
 
-Tecnologias utilizadas
-Java 21
-Spring Boot
-Spring Web
-Spring Data JPA
-Bean Validation
-PostgreSQL
-H2 Database
-Docker
-Docker Compose
-Maven
-Swagger/OpenAPI
-Git e GitHub
+## Funcionalidades
 
-Arquitetura
-O projeto foi organizado seguindo uma estrutura inspirada em Clean Architecture simplificada.
-gas-rateio-api
-└── src
-    └── main
-        └── java
-            └── br.com.armandorodrigues.gasrateio
-                ├── domain
-                ├── application
-                ├── infrastructure
-                └── interfaceadapter
+- Cadastro de torres
+- Cadastro de medidores
+- Registro de leituras mensais
+- Cadastro de contas mensais
+- Cálculo automático de consumo
+- Cálculo proporcional do rateio
+- Consulta de rateios por mês
+- Listagem de torres, medidores, leituras, contas e rateios
+- Tratamento de erros de regra de negócio
+- Documentação via Swagger
+- Testes automatizados
+- Relatório de cobertura com JaCoCo
+- Execução com Docker
+- Pipeline de CI com GitHub Actions
 
+---
 
-Camadas
-Domain
+## Tecnologias utilizadas
 
-Contém as regras de negócio principais do sistema.
+- Java 21
+- Spring Boot
+- Spring Web
+- Spring Data JPA
+- Bean Validation
+- PostgreSQL
+- H2 Database
+- Flyway
+- Maven
+- Docker
+- Docker Compose
+- JUnit 5
+- Mockito
+- MockMvc
+- JaCoCo
+- Swagger / OpenAPI
+- GitHub Actions
 
-Exemplos:
+---
 
-Torre
-Medidor
-Leitura
-ContaMensal
-Rateio
-ItemRateio
-CalculadoraRateio
-Application
+## Arquitetura do projeto
 
-Contém os casos de uso da aplicação.
+O projeto foi organizado seguindo uma separação em camadas inspirada em Clean Architecture.
 
-Exemplos:
+```text
+src/main/java/br/com/armandorodrigues/gasrateio
+├── application
+│   ├── dto
+│   └── usecase
+├── domain
+│   ├── exception
+│   ├── model
+│   ├── repository
+│   └── service
+├── infrastructure
+│   ├── config
+│   ├── persistence
+│   │   ├── entity
+│   │   ├── mapper
+│   │   └── repository
+│   └── report
+└── interfaceadapter
+    ├── controller
+    └── exception
+```
 
-CadastrarTorreUseCase
-RegistrarLeituraUseCase
-RegistrarContaMensalUseCase
-CalcularRateioUseCase
-BuscarRateioPorMesUseCase
-Infrastructure
+### Responsabilidades principais
 
-Contém detalhes técnicos de persistência, banco de dados, configurações e integrações.
+| Camada | Responsabilidade |
+|---|---|
+| `domain` | Regras de negócio, entidades e serviços de domínio |
+| `application` | Casos de uso e DTOs |
+| `infrastructure` | Persistência, JPA, configurações e integrações |
+| `interfaceadapter` | Controllers REST e tratamento de exceções |
 
-Exemplos:
+---
 
-Entidades JPA
-Repositórios Spring Data
-Mappers
-Configuração OpenAPI
-Interface Adapter
+## Principais regras de negócio
 
-Contém os controllers REST e tratamento de exceções.
+### Torre
 
-Exemplos:
+- Nome da torre é obrigatório
+- Nome deve ter pelo menos 2 caracteres
+- Torres são criadas como ativas
 
-TorreController
-MedidorController
-LeituraController
-ContaMensalController
-RateioController
-GlobalExceptionHandler
-Como rodar o projeto
-Pré-requisitos
+### Medidor
 
-Antes de começar, é necessário ter instalado:
+- Código do medidor deve ser único
+- Medidor principal não pode estar vinculado a uma torre
+- Medidor secundário deve estar vinculado a uma torre
+- Nome, código e tipo são obrigatórios
 
-Java 21
-Maven
-Docker
-Docker Compose
-Git
-Subir o PostgreSQL com Docker
+### Leitura
 
-Na raiz do projeto, acesse a pasta infra:
+- Cada medidor só pode ter uma leitura por mês
+- Leitura atual não pode ser menor que a leitura anterior
+- Consumo é calculado automaticamente:
 
-cd infra
+```text
+consumo = leituraAtual - leituraAnterior
+```
 
-Suba o banco de dados:
+### Conta mensal
 
-docker compose up -d
+- Só pode existir uma conta mensal por mês de referência
+- Valor total deve ser maior que zero
+- Consumo informado não pode ser negativo
+- Data de vencimento é obrigatória
 
-Verifique se o container está rodando:
+### Rateio
 
-docker ps
+- Só pode existir um rateio por mês
+- Deve existir conta mensal cadastrada
+- Deve existir leitura do medidor principal
+- Deve existir leitura dos medidores secundários
+- O valor é dividido proporcionalmente pelo consumo dos medidores secundários
+- Diferenças de arredondamento são ajustadas no item de maior consumo
 
-O container esperado é:
+---
 
-gas-rateio-postgres
+## Endpoints principais
 
-Neste projeto, o PostgreSQL está exposto na porta local 5434.
+### Torres
 
-Rodar a API com PostgreSQL
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/torres` | Cadastrar torre |
+| `GET` | `/torres` | Listar torres |
 
-Acesse a pasta da API:
+### Medidores
 
-cd ../gas-rateio-api
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/medidores` | Cadastrar medidor |
+| `GET` | `/medidores` | Listar medidores |
 
-Execute a aplicação usando o profile postgres:
+### Leituras
 
-./mvnw spring-boot:run -Dspring-boot.run.profiles=postgres
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/leituras` | Registrar leitura |
+| `GET` | `/leituras` | Listar leituras |
+
+### Contas mensais
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/contas-mensais` | Cadastrar conta mensal |
+| `GET` | `/contas-mensais` | Listar contas mensais |
+
+### Rateios
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/rateios/calcular` | Calcular rateio |
+| `GET` | `/rateios` | Listar rateios |
+| `GET` | `/rateios/{mesReferencia}` | Buscar rateio por mês |
+
+---
+
+## Como rodar o projeto localmente
+
+### Pré-requisitos
+
+- Java 21
+- Maven Wrapper
+- Docker
+- Docker Compose
+- Git
+
+---
+
+## Rodar com H2 Database
+
+O projeto possui configuração com banco em memória H2 para execução rápida em ambiente local.
+
+```bash
+./mvnw spring-boot:run
+```
 
 A API ficará disponível em:
 
+```text
 http://localhost:8080
-Documentação Swagger
+```
 
-Com a aplicação rodando, acesse:
+Console H2:
 
+```text
+http://localhost:8080/h2-console
+```
+
+Configuração do H2:
+
+```text
+JDBC URL: jdbc:h2:mem:gasrateiodb
+User: sa
+Password: vazio
+```
+
+---
+
+## Rodar com PostgreSQL local via Docker
+
+Suba apenas o banco PostgreSQL:
+
+```bash
+cd infra
+docker compose up -d postgres
+```
+
+Volte para a raiz do projeto:
+
+```bash
+cd ..
+```
+
+Rode a aplicação com o profile `postgres`:
+
+```bash
+./mvnw -Dspring-boot.run.profiles=postgres spring-boot:run
+```
+
+A API ficará disponível em:
+
+```text
+http://localhost:8080
+```
+
+---
+
+## Rodar API + PostgreSQL com Docker
+
+O projeto também pode ser executado completamente com Docker, subindo a API Spring Boot e o PostgreSQL juntos.
+
+Acesse a pasta `infra`:
+
+```bash
+cd infra
+```
+
+Execute:
+
+```bash
+docker compose up --build
+```
+
+Esse comando irá:
+
+- Construir a imagem da API
+- Subir o PostgreSQL
+- Aguardar o banco ficar saudável
+- Subir a API na porta `8080`
+
+Acesse:
+
+```text
+http://localhost:8080
+```
+
+Swagger:
+
+```text
 http://localhost:8080/swagger-ui.html
+```
 
-A especificação OpenAPI também pode ser acessada em:
+Para parar os containers:
 
+```bash
+docker compose down
+```
+
+Para parar e apagar os dados do banco:
+
+```bash
+docker compose down -v
+```
+
+Use `-v` apenas quando quiser apagar o volume do PostgreSQL.
+
+---
+
+## Swagger
+
+A documentação interativa da API está disponível em:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+Documentação OpenAPI em JSON:
+
+```text
 http://localhost:8080/v3/api-docs
-Endpoints principais
-Torres
-POST /torres
-GET /torres
-Medidores
-POST /medidores
-GET /medidores
-Leituras
-POST /leituras
-GET /leituras
-Contas mensais
-POST /contas-mensais
-GET /contas-mensais
-Rateios
-POST /rateios/calcular
-GET /rateios
-GET /rateios/{mesReferencia}
-Exemplo de fluxo de uso
-1. Cadastrar torres
+```
+
+---
+
+## Exemplos de uso da API
+
+Abaixo está um fluxo completo de uso da API.
+
+> Observação: caso os dados demonstrativos estejam ativados com `app.seed.demo-enabled=true`, algumas requisições podem retornar erro de duplicidade porque Prime, Hype, medidores e rateios de exemplo já podem existir.
+
+---
+
+### 1. Cadastrar Torre Prime
+
+```bash
 curl -X POST http://localhost:8080/torres \
   -H "Content-Type: application/json" \
-  -d '{"nome": "Prime"}'
+  -d '{
+    "nome": "Prime"
+  }'
+```
+
+---
+
+### 2. Cadastrar Torre Hype
+
+```bash
 curl -X POST http://localhost:8080/torres \
   -H "Content-Type: application/json" \
-  -d '{"nome": "Hype"}'
-2. Cadastrar medidores
+  -d '{
+    "nome": "Hype"
+  }'
+```
+
+---
+
+### 3. Listar torres
+
+```bash
+curl http://localhost:8080/torres
+```
+
+Resposta esperada:
+
+```json
+[
+  {
+    "id": 1,
+    "nome": "Hype",
+    "ativa": true
+  },
+  {
+    "id": 2,
+    "nome": "Prime",
+    "ativa": true
+  }
+]
+```
+
+> Os IDs podem variar conforme a ordem de cadastro e os dados já existentes no banco.
+
+---
+
+### 4. Cadastrar medidor principal
+
+```bash
 curl -X POST http://localhost:8080/medidores \
   -H "Content-Type: application/json" \
   -d '{
     "nome": "Medidor Principal",
     "codigo": "GAS-PRINCIPAL-001",
-    "tipo": "PRINCIPAL"
+    "tipo": "PRINCIPAL",
+    "torreId": null
   }'
+```
+
+---
+
+### 5. Cadastrar medidor da Torre Prime
+
+Use o `torreId` retornado no cadastro/listagem de torres.
+
+```bash
 curl -X POST http://localhost:8080/medidores \
   -H "Content-Type: application/json" \
   -d '{
     "nome": "Medidor Torre Prime",
     "codigo": "GAS-PRIME-001",
     "tipo": "SECUNDARIO",
-    "torreId": 1
+    "torreId": 2
   }'
+```
+
+---
+
+### 6. Cadastrar medidor da Torre Hype
+
+Use o `torreId` retornado no cadastro/listagem de torres.
+
+```bash
 curl -X POST http://localhost:8080/medidores \
   -H "Content-Type: application/json" \
   -d '{
     "nome": "Medidor Torre Hype",
     "codigo": "GAS-HYPE-001",
     "tipo": "SECUNDARIO",
-    "torreId": 2
+    "torreId": 1
   }'
-3. Registrar leituras
+```
+
+---
+
+### 7. Listar medidores
+
+```bash
+curl http://localhost:8080/medidores
+```
+
+---
+
+### 8. Registrar leitura do medidor principal
+
+Use o `medidorId` retornado na listagem de medidores.
+
+```bash
 curl -X POST http://localhost:8080/leituras \
   -H "Content-Type: application/json" \
   -d '{
@@ -277,6 +498,19 @@ curl -X POST http://localhost:8080/leituras \
     "leituraAnterior": 10000.00,
     "leituraAtual": 11200.00
   }'
+```
+
+Consumo calculado:
+
+```text
+11200 - 10000 = 1200
+```
+
+---
+
+### 9. Registrar leitura da Torre Prime
+
+```bash
 curl -X POST http://localhost:8080/leituras \
   -H "Content-Type: application/json" \
   -d '{
@@ -286,6 +520,19 @@ curl -X POST http://localhost:8080/leituras \
     "leituraAnterior": 5000.00,
     "leituraAtual": 5600.00
   }'
+```
+
+Consumo calculado:
+
+```text
+5600 - 5000 = 600
+```
+
+---
+
+### 10. Registrar leitura da Torre Hype
+
+```bash
 curl -X POST http://localhost:8080/leituras \
   -H "Content-Type: application/json" \
   -d '{
@@ -295,7 +542,19 @@ curl -X POST http://localhost:8080/leituras \
     "leituraAnterior": 4000.00,
     "leituraAtual": 4400.00
   }'
-4. Cadastrar conta mensal
+```
+
+Consumo calculado:
+
+```text
+4400 - 4000 = 400
+```
+
+---
+
+### 11. Cadastrar conta mensal
+
+```bash
 curl -X POST http://localhost:8080/contas-mensais \
   -H "Content-Type: application/json" \
   -d '{
@@ -306,35 +565,63 @@ curl -X POST http://localhost:8080/contas-mensais \
     "numeroFatura": "FAT-2026-06",
     "observacoes": "Conta referente ao consumo de junho."
   }'
-5. Calcular rateio
+```
+
+---
+
+### 12. Calcular rateio
+
+```bash
 curl -X POST http://localhost:8080/rateios/calcular \
   -H "Content-Type: application/json" \
   -d '{
     "mesReferencia": "2026-06"
   }'
-6. Consultar rateio por mês
+```
+
+Resultado esperado:
+
+```json
+{
+  "mesReferencia": "2026-06",
+  "valorTotalConta": 10000.00,
+  "consumoTotalSecundario": 1000.00,
+  "consumoMedidorPrincipal": 1200.00,
+  "diferencaConsumo": 200.00,
+  "itens": [
+    {
+      "nomeTorre": "Prime",
+      "consumo": 600.00,
+      "percentual": 60.00,
+      "valorRateado": 6000.00
+    },
+    {
+      "nomeTorre": "Hype",
+      "consumo": 400.00,
+      "percentual": 40.00,
+      "valorRateado": 4000.00
+    }
+  ]
+}
+```
+
+---
+
+### 13. Buscar rateio por mês
+
+```bash
 curl http://localhost:8080/rateios/2026-06
-Regras de negócio implementadas
-Não permitir cadastro de torre duplicada.
-Não permitir cadastro de medidor com código duplicado.
-Medidor principal não deve estar vinculado a uma torre.
-Medidor secundário deve estar vinculado a uma torre.
-Leitura atual não pode ser menor que leitura anterior.
-Não permitir leitura duplicada para o mesmo medidor e mês.
-Não permitir conta mensal duplicada para o mesmo mês.
-Não permitir rateio duplicado para o mesmo mês.
-O consumo total dos medidores secundários deve ser maior que zero.
-O valor total rateado deve fechar com o valor total da conta.
-Diferenças de arredondamento são ajustadas no item de maior consumo.
-Próximas melhorias
-Criar dados iniciais automáticos para demonstração.
-Adicionar Flyway para versionamento do banco de dados.
-Criar testes automatizados com JUnit e Mockito.
-Criar geração de relatório em PDF.
-Criar exportação em Excel.
-Criar front-end em React com TypeScript.
-Adicionar autenticação e controle de usuários.
-Criar dashboard com histórico mensal de consumo e valores.
+```
+
+---
+
+### 14. Listar todos os rateios
+
+```bash
+curl http://localhost:8080/rateios
+```
+
+---
 
 ## Testes automatizados
 
@@ -342,45 +629,210 @@ O projeto possui testes automatizados cobrindo regras de negócio, casos de uso 
 
 Foram implementados testes para:
 
-- Entidades de domínio:
-  - Torre
-  - Medidor
-  - Leitura
-  - ContaMensal
+### Entidades de domínio
 
-- Serviços de domínio:
-  - CalculadoraRateio
+- Torre
+- Medidor
+- Leitura
+- ContaMensal
 
-- Casos de uso:
-  - Cadastro de torres
-  - Cadastro de medidores
-  - Registro de leituras
-  - Registro de contas mensais
-  - Cálculo de rateio
-  - Busca de rateio por mês
-  - Listagem de torres
-  - Listagem de medidores
-  - Listagem de leituras
-  - Listagem de contas mensais
-  - Listagem de rateios
+### Serviços de domínio
 
-- Controllers:
-  - TorreController
-  - MedidorController
-  - LeituraController
-  - ContaMensalController
-  - RateioController
+- CalculadoraRateio
 
-- Tratamento de erros:
-  - GlobalExceptionHandler
+### Casos de uso
+
+- Cadastro de torres
+- Cadastro de medidores
+- Registro de leituras
+- Registro de contas mensais
+- Cálculo de rateio
+- Busca de rateio por mês
+- Listagem de torres
+- Listagem de medidores
+- Listagem de leituras
+- Listagem de contas mensais
+- Listagem de rateios
+
+### Controllers
+
+- TorreController
+- MedidorController
+- LeituraController
+- ContaMensalController
+- RateioController
+
+### Tratamento de erros
+
+- GlobalExceptionHandler
 
 Para rodar os testes:
 
 ```bash
 ./mvnw test
+```
 
-Autor
+Para rodar o build completo:
+
+```bash
+./mvnw clean install
+```
+
+---
+
+## Cobertura de testes
+
+O projeto utiliza JaCoCo para gerar relatório de cobertura de testes.
+
+Para gerar o relatório:
+
+```bash
+./mvnw clean test
+```
+
+Após a execução, o relatório HTML será gerado em:
+
+```text
+target/site/jacoco/index.html
+```
+
+Para abrir no Linux:
+
+```bash
+xdg-open target/site/jacoco/index.html
+```
+
+A pasta `target/` não é versionada no Git, pois contém arquivos gerados automaticamente pelo Maven.
+
+---
+
+## Integração contínua
+
+O projeto possui pipeline de CI com GitHub Actions.
+
+A cada `push` ou `pull request` para as branches `main` ou `master`, o GitHub executa automaticamente:
+
+```bash
+./mvnw clean test
+```
+
+Isso garante que os testes sejam executados automaticamente antes de novas alterações serem integradas.
+
+---
+
+## Banco de dados
+
+O projeto utiliza Flyway para versionamento do banco de dados.
+
+As migrations ficam em:
+
+```text
+src/main/resources/db/migration
+```
+
+Exemplo:
+
+```text
+V1__create_initial_schema.sql
+V2__add_ativa_to_torres.sql
+```
+
+---
+
+## Dados demonstrativos
+
+O projeto possui inicialização de dados demonstrativos controlada pela propriedade:
+
+```properties
+app.seed.demo-enabled=true
+```
+
+Quando ativada, a aplicação cria dados de exemplo para facilitar testes manuais, como:
+
+- Torre Prime
+- Torre Hype
+- Medidor principal
+- Medidor Torre Prime
+- Medidor Torre Hype
+- Leituras
+- Contas mensais
+- Rateios demonstrativos
+
+Para desativar os dados demonstrativos:
+
+```properties
+app.seed.demo-enabled=false
+```
+
+---
+
+## Estrutura Docker
+
+O projeto possui:
+
+```text
+Dockerfile
+infra/docker-compose.yml
+src/main/resources/application-docker.properties
+.dockerignore
+```
+
+O `Dockerfile` cria a imagem da API Spring Boot.
+
+O `docker-compose.yml` sobe:
+
+- PostgreSQL
+- API Spring Boot
+
+A API usa o profile:
+
+```text
+docker
+```
+
+---
+
+## Aprendizados demonstrados neste projeto
+
+Este projeto demonstra conhecimentos em:
+
+- Desenvolvimento de API REST com Spring Boot
+- Modelagem de domínio
+- Separação de responsabilidades em camadas
+- Regras de negócio com Java
+- Persistência com Spring Data JPA
+- Versionamento de banco com Flyway
+- Testes unitários
+- Testes de controllers com MockMvc
+- Tratamento global de exceções
+- Dockerização de aplicação Java
+- Docker Compose com múltiplos serviços
+- Integração contínua com GitHub Actions
+- Documentação de API com Swagger
+- Boas práticas para projeto de portfólio
+
+---
+
+## Próximas melhorias
+
+Possíveis evoluções futuras:
+
+- Criar autenticação com Spring Security
+- Criar perfis de usuário
+- Criar tela frontend para operação da API
+- Gerar relatório PDF do rateio mensal
+- Exportar rateio para Excel
+- Criar histórico de alterações
+- Criar endpoint para dashboard
+- Adicionar paginação e filtros
+- Publicar a aplicação em ambiente cloud
+- Criar documentação com imagens do Swagger
+
+---
+
+## Autor
 
 Desenvolvido por Armando Rodrigues.
 
-Projeto criado como parte de portfólio de desenvolvimento backend, utilizando uma necessidade real de gestão condominial como base para a solução.
+Projeto criado como parte do portfólio de estudos em Java, Spring Boot, APIs REST, Docker, testes automatizados e boas práticas de desenvolvimento backend.
+
