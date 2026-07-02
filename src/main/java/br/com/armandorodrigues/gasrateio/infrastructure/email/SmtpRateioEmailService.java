@@ -1,4 +1,4 @@
-package br.com.armandorodrigues.gasrateio.infrastructure.report;
+package br.com.armandorodrigues.gasrateio.infrastructure.email;
 
 import br.com.armandorodrigues.gasrateio.application.service.RateioEmailService;
 import br.com.armandorodrigues.gasrateio.domain.model.ItemRateio;
@@ -18,40 +18,27 @@ import java.util.Arrays;
 import java.util.Locale;
 
 @Service
-@ConditionalOnProperty(
-        name = "app.email.enabled",
-        havingValue = "true"
-)
+@ConditionalOnProperty(name = "app.email.enabled", havingValue = "true")
 public class SmtpRateioEmailService implements RateioEmailService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SmtpRateioEmailService.class);
+    private static final Logger log = LoggerFactory.getLogger(SmtpRateioEmailService.class);
 
-    private final JavaMailSender mailSender;
-    private final boolean emailEnabled;
-    private final String destinatarios;
-    private final String remetente;
+    private final JavaMailSender javaMailSender;
 
-    public SmtpRateioEmailService(
-            JavaMailSender mailSender,
-            @Value("${app.email.enabled:false}") boolean emailEnabled,
-            @Value("${app.email.destinatarios:}") String destinatarios,
-            @Value("${app.email.remetente:gas-rateio@localhost}") String remetente
-    ) {
-        this.mailSender = mailSender;
-        this.emailEnabled = emailEnabled;
-        this.destinatarios = destinatarios;
-        this.remetente = remetente;
+    @Value("${app.email.from:no-reply@gasrateio.local}")
+    private String remetente;
+
+    @Value("${app.email.destinatarios:}")
+    private String destinatarios;
+
+    public SmtpRateioEmailService(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
     }
 
     @Override
     public void enviarRateioCalculado(Rateio rateio) {
-        if (!emailEnabled) {
-            logger.info("Envio de e-mail desativado. Rateio {} não será enviado por e-mail.", rateio.getMesReferencia());
-            return;
-        }
-
-        if (destinatarios == null || destinatarios.trim().isEmpty()) {
-            logger.warn("Nenhum destinatário configurado para envio do rateio por e-mail.");
+        if (destinatarios == null || destinatarios.isBlank()) {
+            log.warn("Envio de e-mail ativado, mas nenhum destinatário foi configurado em app.email.destinatarios.");
             return;
         }
 
@@ -62,22 +49,18 @@ public class SmtpRateioEmailService implements RateioEmailService {
             mensagem.setSubject("Rateio de gás calculado - " + rateio.getMesReferencia());
             mensagem.setText(montarCorpoEmail(rateio));
 
-            mailSender.send(mensagem);
+            javaMailSender.send(mensagem);
 
-            logger.info("E-mail de rateio enviado com sucesso para o mês {}.", rateio.getMesReferencia());
+            log.info("E-mail de rateio enviado com sucesso para o mês {}.", rateio.getMesReferencia());
         } catch (MailException exception) {
-            logger.error(
-                    "Falha ao enviar e-mail do rateio {}. O rateio foi calculado normalmente.",
-                    rateio.getMesReferencia(),
-                    exception
-            );
+            log.error("Falha ao enviar e-mail de rateio para o mês {}.", rateio.getMesReferencia(), exception);
         }
     }
 
     private String[] obterDestinatarios() {
         return Arrays.stream(destinatarios.split(","))
                 .map(String::trim)
-                .filter(email -> !email.isEmpty())
+                .filter(destinatario -> !destinatario.isBlank())
                 .toArray(String[]::new);
     }
 
@@ -88,41 +71,42 @@ public class SmtpRateioEmailService implements RateioEmailService {
         corpo.append("Mês de referência: ").append(rateio.getMesReferencia()).append("\n\n");
 
         corpo.append("Resumo geral\n");
+        corpo.append("------------------------------\n");
         corpo.append("Valor total da conta: ").append(formatarMoeda(rateio.getValorTotalConta())).append("\n");
-        corpo.append("Consumo medidor principal: ").append(formatarNumero(rateio.getConsumoMedidorPrincipal())).append("\n");
-        corpo.append("Consumo total secundário: ").append(formatarNumero(rateio.getConsumoTotalSecundario())).append("\n");
+        corpo.append("Consumo do medidor principal: ").append(formatarNumero(rateio.getConsumoMedidorPrincipal())).append("\n");
+        corpo.append("Consumo total dos secundários: ").append(formatarNumero(rateio.getConsumoTotalSecundario())).append("\n");
         corpo.append("Diferença de consumo: ").append(formatarNumero(rateio.getDiferencaConsumo())).append("\n\n");
 
         corpo.append("Divisão por torre\n");
+        corpo.append("------------------------------\n");
 
         for (ItemRateio item : rateio.getItens()) {
-            corpo.append("\n");
             corpo.append(item.getNomeTorre()).append("\n");
             corpo.append("Consumo: ").append(formatarNumero(item.getConsumo())).append("\n");
             corpo.append("Percentual: ").append(formatarPercentual(item.getPercentual())).append("\n");
-            corpo.append("Valor rateado: ").append(formatarMoeda(item.getValorRateado())).append("\n");
+            corpo.append("Valor rateado: ").append(formatarMoeda(item.getValorRateado())).append("\n\n");
         }
 
-        corpo.append("\nEste e-mail foi gerado automaticamente pelo sistema GasRateio.");
+        corpo.append("Este e-mail foi gerado automaticamente pelo Sistema de Rateio de Gás Condominial.\n");
 
         return corpo.toString();
     }
 
     private String formatarMoeda(BigDecimal valor) {
         return NumberFormat
-                .getCurrencyInstance(new Locale("pt", "BR"))
+                .getCurrencyInstance(Locale.of("pt", "BR"))
                 .format(valor);
     }
 
     private String formatarNumero(BigDecimal valor) {
         return NumberFormat
-                .getNumberInstance(new Locale("pt", "BR"))
+                .getNumberInstance(Locale.of("pt", "BR"))
                 .format(valor);
     }
 
     private String formatarPercentual(BigDecimal valor) {
         return NumberFormat
-                .getNumberInstance(new Locale("pt", "BR"))
+                .getNumberInstance(Locale.of("pt", "BR"))
                 .format(valor) + "%";
     }
 }
