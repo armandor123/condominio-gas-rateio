@@ -836,3 +836,68 @@ Desenvolvido por Armando Rodrigues.
 
 Projeto criado como parte do portfólio de estudos em Java, Spring Boot, APIs REST, Docker, testes automatizados e boas práticas de desenvolvimento backend.
 
+
+---
+
+## Envio de e-mail do rateio
+
+O sistema possui envio automático de e-mail quando um rateio é calculado com sucesso.
+
+Fluxo:
+
+```text
+Rateio calculado
+↓
+Rateio salvo no banco
+↓
+Sistema monta um resumo
+↓
+Sistema envia e-mail aos destinatários configurados
+```
+
+O e-mail contém:
+
+- Mês de referência
+- Valor total da conta
+- Consumo do medidor principal
+- Consumo total dos medidores secundários
+- Diferença entre principal e secundários
+- Consumo por torre
+- Percentual de rateio por torre
+- Valor rateado por torre
+
+### Configuração
+
+O envio é controlado pelas propriedades:
+
+```properties
+app.email.enabled=true
+app.email.destinatarios=admin@condominio.com
+app.email.remetente=gas-rateio@localhost
+```
+
+Em ambiente local, o envio pode ficar desativado:
+
+```properties
+app.email.enabled=false
+```
+
+### Teste com Mailpit
+
+No ambiente Docker, o projeto utiliza Mailpit para capturar e-mails localmente.
+
+Para subir a API, PostgreSQL e Mailpit:
+
+```bash
+cd infra
+docker compose up --build
+```
+
+Acesse a caixa de entrada local:
+
+```text
+http://localhost:8025
+```
+
+Quando um rateio novo for calculado com sucesso, o e-mail aparecerá nessa interface.
+
